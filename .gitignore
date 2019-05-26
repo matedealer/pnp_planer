@@ -1,0 +1,10 @@
+.idea/
+.venv/
+
+#Due to passwords and so one
+config.py
+
+
+
+__pycache__/
+
