@@ -3,22 +3,8 @@ from datetime import datetime, timedelta
 import caldav
 from caldav.elements import dav
 from pnp_party import PnPParty
+from config import SLOTS
 
-
-
-
-vcal = """BEGIN:VCALENDAR
-VERSION:2.0
-PRODID:-//Example Corp.//CalDAV Client//EN
-BEGIN:VEVENT
-UID:1234567890
-DTSTAMP:20100510T182145Z
-DTSTART:20100512T170000Z
-DTEND:20100512T180000Z
-SUMMARY:This is an event
-END:VEVENT
-END:VCALENDAR
-"""
 
 
 
@@ -41,12 +27,21 @@ class CalWrapper():
         else:
             self.calendar.add_event(ical)
 
+    def delet_event(self, pnp_party):
+        pnp_party.event.delete()
+        del pnp_party
+
     def get_event(self, event_date: datetime,  slot:int):
-        ical_list = self.calendar.date_search(event_date.date(),event_date.date()+timedelta(days=1))
+        start = event_date
+        end = event_date+timedelta(days=1)
+        ical_list = self.calendar.date_search(start,end)
         events = (PnPParty.generate_from_caldav(elem) for elem in ical_list)
         for event in events:
-            if event.slot == slot and event.date.date() == event_date.date():
-                return event
+            try:
+                if event.slot == slot and event.date.date() == event_date.date():
+                    return event
+            except AttributeError as e:
+                print(e)
 
 
     def get_all_future_events(self):
@@ -61,27 +56,24 @@ class CalWrapper():
 
         return events
 
+    def get_events_on_date(self, event_date:datetime):
+        start = event_date
+        end = event_date + timedelta(days=1)
+        ical_list = self.calendar.date_search(start, end)
+        events = (PnPParty.generate_from_caldav(elem) for elem in ical_list)
+        ret_list = []
+        for event in events:
+            try:
+                if event.date.date() == event_date.date():
+                    ret_list.append(event)
+            except AttributeError as e:
+                print(e)
 
+        return ret_list
 
-    def debug(self):
-
-        print("Using calendar", self.calendar)
-
-        #print("Renaming")
-        #calendar.set_properties([dav.DisplayName("pnp_planer"),])
-        print(self.calendar.get_properties([dav.DisplayName(),]))
-
-        #event = calendar.add_event(vcal)
-        #print("Event", event, "created")
-
-        print("Looking for events in 2010-05")
-        results = self.calendar.date_search(
-            datetime(2010, 5, 1), datetime(2010, 6, 1))
-
-        for event in results:
-            print("Found", event)
-
-
+    def get_free_slot(self, event_date:datetime):
+        events = self.get_events_on_date(event_date)
+        return [slot for slot in SLOTS if not slot in [event.slot for event in events]]
 
 
 
