@@ -8,7 +8,8 @@ from utils import string_to_date
 from tabulate import tabulate
 
 
-description = '''A bot to have a nice tool for planing pnp parties in discord.\n
+description = '''A bot to have a nice tool for planing pnp parties in discord.
+                The source code is public available on https://github.com/matedealer/pnp_planer \n
                 Date formats: 
                 * today, heute, now 
                 * tomorrow, morgen  
@@ -16,6 +17,8 @@ description = '''A bot to have a nice tool for planing pnp parties in discord.\n
                 * 13.04.2019-14:56 
                 * 13.04.2019 
                 * 13.04
+                
+                
 '''
 
 
